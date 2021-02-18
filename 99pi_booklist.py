@@ -22,9 +22,10 @@ def get_episodes(url):
     Returns episode information from one page of 99pi episodes list
     url = 99pi url of episode list
     """
-    
+
+    print(f"^ scraping basic episode information. 20 episodes per page")
     response = requests.get(url, timeout = 2)
-    print(response.status_code) # 200 is good 
+    print(f"Testing link of each page. 200 is good: {response.status_code}")
 
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -41,11 +42,8 @@ def get_episodes(url):
             span_list.append(span.text) 
         
         date = span_list[3]
-
         episode_number = span_list[2]
-
         title = episode.find("a",{"class": "play"}).get("title")
-
         
         episodes_onepage = episodes_onepage.append(
             {
@@ -73,7 +71,7 @@ def get_all_episodes(max_pages):
     episodes_multipage = pd.DataFrame(columns = cols)
     
     for page in tqdm(range(1, int(max_pages) + 1)):
-        """Make the urls dynamic"""
+        
         url = (
             link_first_part
             + str(page)
@@ -87,9 +85,19 @@ def get_all_episodes(max_pages):
 # episode description extracted from each link
 # appended to existing dataframe
 def get_description(max_pages):
+    """
+    max_pages is the number of 99pi website episode list pages to scrape
+    
+    get_description calls 'get_all_episodes' which calls 'get_episodes'
+    
+    episode description extracted from each link
+    appended to dataframe from get_all_episodes
+    """
     df = get_all_episodes(max_pages)
     description = []
+    print(f"Pulling every episode's description:")
     for link in tqdm(df["episode_link"]):
+        
         response2 = requests.get(link, timeout=15)
         soup2 = BeautifulSoup(response2.content, "html.parser")
         
@@ -101,5 +109,6 @@ def get_description(max_pages):
             description.append('NA')
     
     df["description"] = description
+    
     return df
 

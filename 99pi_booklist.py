@@ -112,3 +112,19 @@ def get_description(max_pages):
     
     return df
 
+def total_episode_pages(url): 
+    response = requests.get(url, timeout = 2)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    total_pages = soup.find("a",{"class": "page-numbers"}).find_next_siblings("a")[-1].get("data-page-number")
+    return f"99% Invisible has {total_pages} pages of episodes"
+
+
+def author_episodes(max_pages):
+    df_allepisodes = get_description(max_pages)
+
+    df_credits = df_allepisodes[df_allepisodes.description != 'NA']
+    df_credits['description'] = df_credits['description'].astype(str)
+    df_authors = df_credits[df_credits['description'].str.contains("author of")].reset_index(drop=True)
+
+    return df_authors

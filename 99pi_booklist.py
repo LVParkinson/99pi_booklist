@@ -128,3 +128,6 @@ def author_episodes(max_pages):
     df_authors = df_credits[df_credits['description'].str.contains("author of")].reset_index(drop=True)
 
     return df_authors
+
+total_episode_pages('https://99percentinvisible.org/episodes/?view_option=list')
+
